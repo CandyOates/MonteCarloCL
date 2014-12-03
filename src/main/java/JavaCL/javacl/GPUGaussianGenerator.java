@@ -13,7 +13,7 @@ public class GPUGaussianGenerator {
 	final protected CLPlatform _plat = JavaCL.listPlatforms()[0];
 	final protected String _kernelFile = "/Users/andingo/projects/Java/javacl/src/main/java/JavaCL/javacl/kernels.cl";
 	protected KernelReader _kr;
-	protected Pointer<Double> _randn;
+	protected Pointer<Float> _randn;
 	protected int _ind = 0;
 
 	GPUGaussianGenerator() {
@@ -43,45 +43,40 @@ public class GPUGaussianGenerator {
 		// Create box-muller kernel
 		CLKernel kernel = program.createKernel("box_muller");
 		// Allocate memory and fill with U(0,1) samples for input
-		Pointer<Double> unifs1Ptr = _getUnifs();
-		Pointer<Double> unifs2Ptr = _getUnifs();
-		CLBuffer<Double>
-			unifs1 = context.createDoubleBuffer(CLMem.Usage.Input, unifs1Ptr),
-			unifs2 = context.createDoubleBuffer(CLMem.Usage.Input, unifs2Ptr);
+		Pointer<Float> unifs1Ptr = _getUnifs();
+		Pointer<Float> unifs2Ptr = _getUnifs();
+		CLBuffer<Float>
+			unifs1 = context.createFloatBuffer(CLMem.Usage.Input, unifs1Ptr),
+			unifs2 = context.createFloatBuffer(CLMem.Usage.Input, unifs2Ptr);
 		// Create output buffer for N(0,1) samples
-		CLBuffer<Double> out = context.createDoubleBuffer(CLMem.Usage.Output, _batchSize);
+		CLBuffer<Float> out = context.createFloatBuffer(CLMem.Usage.Output, _batchSize);
 		// set args
 		kernel.setArgs(unifs1,unifs2,out,_batchSize_2);
 		
-		for (int k : new int[]{0,1}) {
-		for (long j : devices[k].getMaxWorkItemSizes()) {
-			System.out.println(j);
-		}
-		}
-
-		CLEvent event = kernel.enqueueNDRange(queue, new int[]{_batchSize}, new int[]{128});
+		CLEvent event = kernel.enqueueNDRange(queue, new int[]{_batchSize_2});
 		
 		// retrieve results
 		_randn = out.read(queue, event);
 	}
 	
-	protected Pointer<Double> _getUnifs() {
+	protected Pointer<Float> _getUnifs() {
 		int _batchSize_2 = _batchSize/2;
-		Pointer<Double> unifs = Pointer.allocateDoubles(_batchSize_2);
+		Pointer<Float> unifs = Pointer.allocateFloats(_batchSize_2);
 		Random rand = new Random();
 		for (int i=0; i<_batchSize_2; i++) {
-			unifs.set((long)i, rand.nextDouble());
+			unifs.set((long)i, rand.nextFloat());
 		}
 		return unifs;
 	}
 	
-	public double[] getGaussians(int n) {
-		double [] output;
+	public float[] getGaussians(int n) {
+		float [] output;
+		if (_randn == null) _generateGaussians();
 		if (_ind + n < _batchSize) {
-			output = _randn.next(_ind).getDoubles(n);
+			output = _randn.next(_ind).getFloats(n);
 			_ind += n;
 		} else {
-			output = new double [n];
+			output = new float [n];
 
 			int ct = 0;
 			while (ct < n) {
