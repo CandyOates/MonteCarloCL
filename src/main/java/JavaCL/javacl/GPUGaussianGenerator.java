@@ -6,7 +6,7 @@ import com.nativelibs4java.opencl.*;
 
 import org.bridj.Pointer;
 
-public class GPUGaussianGenerator implements RandomVectorGenerator {
+public class GPUGaussianGenerator {
 
 	protected int _batchSize = 2000000;
 	protected int _batchSize_2 = _batchSize/2;

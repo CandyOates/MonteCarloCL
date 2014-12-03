@@ -120,5 +120,20 @@ public class Test_GPUGaussianGenerator {
 		fs = randn.getGaussians(1999999);
 		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
 	}
+	
+	@Test
+	public void getGaussians2() throws IOException {
+		long tmp = System.currentTimeMillis();
+		float[] fs = randn.getGaussians((int)(1.5*randn._batchSize));
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+
+		br = new BufferedWriter(new FileWriter(new File("/Users/andingo/Documents/MATLAB/normalsamples2.csv")));
+		for (float f : fs)
+			br.write(String.format("%f\n",f));
+		
+		br.flush();
+		br.close();
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+	}
 
 }
