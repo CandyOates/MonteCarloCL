@@ -6,7 +6,7 @@ import com.nativelibs4java.opencl.*;
 
 import org.bridj.Pointer;
 
-public class GPUGaussianGenerator {
+public class GPUGaussianGenerator implements RandomVectorGenerator {
 
 	protected int _batchSize = 2000000;
 	protected int _batchSize_2 = _batchSize/2;
@@ -15,14 +15,15 @@ public class GPUGaussianGenerator {
 	protected KernelReader _kr;
 	protected Pointer<Float> _randn;
 	protected int _ind = 0;
+	protected int _vecSize;
 
-	GPUGaussianGenerator() {
+	GPUGaussianGenerator(int vecSize) {
 		try {
 			_kr = new KernelReader(_kernelFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(_kr.getFuncNames().toString());
+		_vecSize = vecSize;
 	}
 	
 	protected void _generateGaussians() {
@@ -57,6 +58,10 @@ public class GPUGaussianGenerator {
 		
 		// retrieve results
 		_randn = out.read(queue, event);
+		unifs1.release();
+		unifs2.release();
+		unifs1Ptr.release();
+		unifs2Ptr.release();
 	}
 	
 	protected Pointer<Float> _getUnifs() {
@@ -72,9 +77,10 @@ public class GPUGaussianGenerator {
 	public float[] getGaussians(int n) {
 		float [] output;
 		if (_randn == null) _generateGaussians();
-		if (_ind + n < _batchSize) {
+		if (_ind + n <= _batchSize) {
 			output = _randn.next(_ind).getFloats(n);
 			_ind += n;
+			if (_ind == _batchSize) {_randn.release(); _randn = null;}
 		} else {
 			output = new float [n];
 
@@ -86,6 +92,10 @@ public class GPUGaussianGenerator {
 		}
 
 		return output;
+	}
+
+	public float[] getVector() {
+		return getGaussians(_vecSize);
 	}
 
 }

@@ -22,6 +22,11 @@ import org.bridj.Pointer;
 public class Test_GPUGaussianGenerator {
 	class TestGGG extends GPUGaussianGenerator {
 
+		TestGGG(int vecSize) {
+			super(vecSize);
+			// TODO Auto-generated constructor stub
+		}
+
 		public void setBatchSize(int i) {
 			if (i % 2 != 0) i++;
 			_batchSize = i;
@@ -35,7 +40,7 @@ public class Test_GPUGaussianGenerator {
 
 	@Before
 	public void setUp() throws Exception {
-		randn = new TestGGG();
+		randn = new TestGGG(1);
 	}
 
 	@Test
@@ -73,11 +78,23 @@ public class Test_GPUGaussianGenerator {
 	@Test
 	public void test_getGaussians() {
 		System.out.println("Get Gaussians:");
-		int N = 1000;
+		System.out.println("Generating...");
 		long tmp = System.currentTimeMillis();
 		randn.getGaussians(randn._batchSize);
 		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
 		
+		int N = 1000005;
+		for (int i=0; i<2; i++) {
+			tmp = System.currentTimeMillis();
+			System.out.println("Generating...");
+			randn.getGaussians(N);
+			System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+		}
+		tmp = System.currentTimeMillis();
+		randn.getGaussians(2000000-10);
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+		
+		System.out.println("Time non-GPU:");
 		tmp = System.currentTimeMillis();
 		Random rand = new Random();
 		float PI = (float) Math.PI;
@@ -90,8 +107,18 @@ public class Test_GPUGaussianGenerator {
 			float out1 = tmp1*((float) Math.cos(tmp2));
 			float out2 = tmp1*((float) Math.sin(tmp2));
 		}
-			System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+		System.out.println("End non-GPU");
 		
+		tmp = System.currentTimeMillis();
+		System.out.println("Generating...");
+		System.out.println("Generating...");
+		float[] fs = randn.getGaussians(2000001);
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+
+		tmp = System.currentTimeMillis();
+		fs = randn.getGaussians(1999999);
+		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
 	}
 
 }
