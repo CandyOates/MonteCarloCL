@@ -73,19 +73,19 @@ public class KernelReader {
 			if (open) {
 				if ( line.matches("}") ) {
 					open = false;
-					kernel.add(line);
+					kernel.add(line+"\n");
 					String program = "";
 					Iterator<String> iter = kernel.iterator();
 					while (iter.hasNext()) program += iter.next();
 					__kernels.put(fname,program);
 				} else {
-					kernel.add(line);
+					kernel.add(line+"\n");
 				}
 			} else {
 				if ( line.matches("__kernel (.*)") ) {
 					open = true;
 					kernel.clear();
-					kernel.add(line);
+					kernel.add(line+"\n");
 					fname = getFunctionName(line);
 				}
 				continue;

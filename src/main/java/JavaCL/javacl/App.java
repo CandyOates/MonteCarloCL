@@ -16,7 +16,7 @@ public class App
         CLPlatform clPlatform = JavaCL.listPlatforms()[0];
         // Getting the GPU device
         //CLDevice device = clPlatform.listGPUDevices(true)[0];
-        CLDevice device = clPlatform.listAllDevices(true)[1];
+        CLDevice device = clPlatform.listGPUDevices(true)[0];
         // Verifing that we have the GPU device
         System.out.println("*** New device *** ");
         System.out.println("Vendor: " + device.getVendor());
@@ -53,8 +53,7 @@ public class App
         CLKernel kernel = program.createKernel("fill_in_values");
 
         final long tmp = System.currentTimeMillis();
-        final int n = 1024*256
-                *16;
+        final int n = 1024*256*16;
         final Pointer<Float>
                 aPtr = Pointer.allocateFloats(n),
                 bPtr = Pointer.allocateFloats(n);
@@ -89,21 +88,11 @@ public class App
         //            System.out.println( aPtr.get(i) + " " + cPtr.get(i) );
         //        }
 
-
-        float[] aa = new float[n];
-        float[] bb = new float[n];
-        float[] cc = new float[n];
-
-        //for ( int i = 0; i < n; ++i){
-        //    aa[i] = (float) i;
-        //    bb[i] = (float) i;
-        //}
-        System.out.println((System.currentTimeMillis() - tmp));
-        for ( int i = 0; i < n; ++i){
-            Math.cos(i);
-            Math.sin(i);
+        Pointer<Float> aout = a.read(queue, event);
+        Pointer<Float> bout = b.read(queue, event);
+        
+        for (int i=0; i<10; i++) {
+        	System.out.format("(%+.4f,%+.4f)\n",aout.get(i),bout.get(i));
         }
-
-        System.out.println((System.currentTimeMillis() - tmp));
     }
 }
