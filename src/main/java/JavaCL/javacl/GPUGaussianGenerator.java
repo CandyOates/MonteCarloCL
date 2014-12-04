@@ -8,6 +8,13 @@ import montecarlo.RandomVectorGenerator;
 
 import org.bridj.Pointer;
 
+/**
+ * Uses GPUs to generate large batches of Gaussian random numbers and
+ * then distribute them as requested.
+ * 
+ * @author andingo
+ * @version 1.0
+ */
 public class GPUGaussianGenerator implements RandomVectorGenerator {
 
 	protected int _batchSize = 2000000;
@@ -19,6 +26,10 @@ public class GPUGaussianGenerator implements RandomVectorGenerator {
 	protected int _ind = 0;
 	protected int _vecSize;
 
+	/**
+	 * 
+	 * @param vecSize default vector length for {@link RandomVectorGenerator#getVector()}
+	 */
 	GPUGaussianGenerator(int vecSize) {
 		try {
 			_kr = new KernelReader(_kernelFile);
@@ -28,6 +39,9 @@ public class GPUGaussianGenerator implements RandomVectorGenerator {
 		_vecSize = vecSize;
 	}
 	
+	/**
+	 * Generates and stores Gaussians internally.
+	 */
 	protected void _generateGaussians() {
 		_ind = 0;
 		try {
@@ -66,6 +80,10 @@ public class GPUGaussianGenerator implements RandomVectorGenerator {
 		unifs2Ptr.release();
 	}
 	
+	/**
+	 * Generates a batch of uniform random numbers.
+	 * @return
+	 */
 	protected Pointer<Float> _getUnifs() {
 		int _batchSize_2 = _batchSize/2;
 		Pointer<Float> unifs = Pointer.allocateFloats(_batchSize_2);
@@ -80,6 +98,11 @@ public class GPUGaussianGenerator implements RandomVectorGenerator {
 		return unifs;
 	}
 	
+	/**
+	 * 
+	 * @param n number of Gaussians in the vector
+	 * @return a vector of i.i.d. Gaussian random numbers
+	 */
 	public float[] getGaussians(int n) {
 		float [] output;
 		if (_randn == null) _generateGaussians();
