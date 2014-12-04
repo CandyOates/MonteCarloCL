@@ -4,9 +4,11 @@ import java.util.Random;
 
 import com.nativelibs4java.opencl.*;
 
+import montecarlo.RandomVectorGenerator;
+
 import org.bridj.Pointer;
 
-public class GPUGaussianGenerator {
+public class GPUGaussianGenerator implements RandomVectorGenerator {
 
 	protected int _batchSize = 2000000;
 	protected int _batchSize_2 = _batchSize/2;
@@ -69,7 +71,11 @@ public class GPUGaussianGenerator {
 		Pointer<Float> unifs = Pointer.allocateFloats(_batchSize_2);
 		Random rand = new Random();
 		for (int i=0; i<_batchSize_2; i++) {
-			unifs.set((long)i, rand.nextFloat());
+			float f = rand.nextFloat();
+			if (f == 0)
+				unifs.set((long)i, (float)Math.pow(2.0, -24));
+			else
+				unifs.set((long)i, f);
 		}
 		return unifs;
 	}

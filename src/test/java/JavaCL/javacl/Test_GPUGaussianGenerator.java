@@ -122,7 +122,7 @@ public class Test_GPUGaussianGenerator {
 	}
 	
 	@Test
-	public void getGaussians2() throws IOException {
+	public void test_getGaussians2() throws IOException {
 		long tmp = System.currentTimeMillis();
 		float[] fs = randn.getGaussians((int)(1.5*randn._batchSize));
 		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
@@ -134,6 +134,23 @@ public class Test_GPUGaussianGenerator {
 		br.flush();
 		br.close();
 		System.out.format("Time elapsed: %,d\n",System.currentTimeMillis()-tmp);
+	}
+	
+	@Test
+	public void test_noNaNsorInfs() throws Exception {
+		float[] fs;
+		int M = 100;
+		for (int i=0; i<M; i++) {
+			fs = randn.getGaussians(randn._batchSize);
+			for (float f : fs) {
+				if (Float.isInfinite(f)) {
+					throw( new Exception("Infinite"));
+				}
+				if (Float.isNaN(f)) {
+					throw( new Exception("NaN"));
+				}
+			}
+		}
 	}
 
 }

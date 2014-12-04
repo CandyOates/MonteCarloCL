@@ -21,8 +21,8 @@ public class MonteCarloManager {
 	 * @return the estimated price
 	 * @throws Exception invalid input
 	 */
-	public static double run(Payout option, StockPath path,
-			double error, double prob) throws Exception {
+	public static float run(Payout option, StockPath path,
+			float error, float prob) throws Exception {
 		if (option == null) throw ( new Exception ("option is null"));
 		if (path == null) throw ( new Exception ("path is null"));
 		if (error <= 0) throw (new Exception ("error must be positive"));
@@ -32,7 +32,7 @@ public class MonteCarloManager {
 		StatisticsHandler stats = new StatisticsHandler();
 		NormalDistribution norm = new NormalDistribution();
 		
-		double y = Math.pow(norm.inverseCumulativeProbability( (1-prob)/2 ) / error, 2);
+		float y = (float) Math.pow(norm.inverseCumulativeProbability( (1-prob)/2 ) / error, 2);
 		
 		int N = 100000;
 		int n = 0;

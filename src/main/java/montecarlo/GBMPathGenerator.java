@@ -62,7 +62,6 @@ public class GBMPathGenerator implements StockPath {
 		DateTime iter = new DateTime(startDate.getMillis());
 		long delta = (endDate.getMillis() - startDate.getMillis())/N;
 
-//		List<Pair<DateTime, Float>> path = new LinkedList<Pair<DateTime,Float>>();
 		List<Pair<DateTime, Float>> path = new ArrayList<Pair<DateTime,Float>>(N);
 		path.add(new Pair<DateTime, Float>(iter , S0));
 
